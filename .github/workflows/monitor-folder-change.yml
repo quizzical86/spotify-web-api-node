@@ -22,10 +22,11 @@ jobs:
         CHANGES=$(git diff --name-only HEAD origin/main)
         echo "::set-output name=changes::$CHANGES"
 
-    - name: Send Notification
+    - name: Create GitHub Issue
       if: steps.check_changes.outputs.changes != ''
-      run: |
-        echo "Changes detected in the Wave_2PM/EU folder."
-        # You can add a command here to send an email or Slack notification
-        # For example, using curl to send a Slack message
-        # curl -X POST -H 'Content-type: application/json' --data '{"text":"Changes detected in the Wave_2PM/EU folder."}' https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
+      uses: peter-evans/create-issue-from-file@v3
+      with:
+        title: "Changes detected in Wave_2PM/EU folder"
+        content-filepath: CHANGELOG.md
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
