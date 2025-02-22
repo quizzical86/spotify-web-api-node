@@ -1,0 +1,31 @@
+name: Monitor Folder Changes
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs once a day at midnight UTC
+
+jobs:
+  check_for_changes:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v2
+      with:
+        repository: QubinoHelp/Shelly_Wave_FW_OTA
+        path: target-repo
+
+    - name: Check for Changes
+      id: check_changes
+      run: |
+        cd target-repo/Wave_2PM/EU
+        git fetch origin
+        CHANGES=$(git diff --name-only HEAD origin/main)
+        echo "::set-output name=changes::$CHANGES"
+
+    - name: Send Notification
+      if: steps.check_changes.outputs.changes != ''
+      run: |
+        echo "Changes detected in the Wave_2PM/EU folder."
+        # You can add a command here to send an email or Slack notification
+        # For example, using curl to send a Slack message
+        # curl -X POST -H 'Content-type: application/json' --data '{"text":"Changes detected in the Wave_2PM/EU folder."}' https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
